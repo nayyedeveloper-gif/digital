@@ -27,10 +27,22 @@ export default function Campaigns() {
   }, {} as Record<string, { channel: string; spend: number; revenue: number; conversions: number; count: number }>);
 
   const channelChartData = Object.values(channelData);
-  // Use revenue for pie chart so Organic channels are visible (they have 0 spend but have revenue)
-  const pieData = channelChartData
-    .map(d => ({ name: d.channel, value: d.revenue }))
-    .filter(d => d.value > 0); // Only show channels with revenue
+  
+  // Filter out Organic channel for pie chart
+  const paidChannelData = channelChartData.filter(d => 
+    d.channel.toLowerCase() !== 'organic'
+  );
+  
+  // Calculate total spend for percentage display (excluding Organic)
+  const totalSpend = paidChannelData.reduce((sum, d) => sum + d.spend, 0);
+  
+  // Use campaign count for pie chart to ensure all channels are visible
+  const pieData = paidChannelData.map(d => ({ 
+    name: d.channel, 
+    value: d.count,
+    spend: d.spend,
+    percentage: totalSpend > 0 ? (d.spend / totalSpend * 100) : 0
+  }));
 
   // Top campaigns by spend
   const topCampaigns = [...campaigns]
@@ -52,8 +64,8 @@ export default function Campaigns() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle>Revenue Distribution by Channel</CardTitle>
-            <CardDescription>Revenue performance across all channels</CardDescription>
+            <CardTitle>Spend Distribution by Channel</CardTitle>
+            <CardDescription>Budget allocation across channels</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -67,7 +79,7 @@ export default function Campaigns() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, payload }) => `${name}: ${payload.percentage.toFixed(1)}%`}
                       outerRadius={80}
                       fill="hsl(var(--primary))"
                       dataKey="value"
@@ -76,7 +88,12 @@ export default function Campaigns() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <Tooltip 
+                      formatter={(value: number, name: string, props: any) => [
+                        formatCurrency(props.payload.spend),
+                        'Spend'
+                      ]}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
