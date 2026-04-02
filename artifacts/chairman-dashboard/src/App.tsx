@@ -10,7 +10,7 @@ import { setBaseUrl } from "@workspace/api-client-react";
 import Overview from "@/pages/overview";
 import Campaigns from "@/pages/campaigns";
 import Channels from "@/pages/channels";
-import Trends from "@/pages/trends";
+// import Trends from "@/pages/trends";
 import Sheets from "@/pages/sheets";
 import ReportLiveSales from "@/pages/report-live-sales";
 import ReportPaidAds from "@/pages/report-paid-ads";
@@ -29,7 +29,7 @@ function Router() {
         <Route path="/" component={Overview} />
         <Route path="/campaigns" component={Campaigns} />
         <Route path="/channels" component={Channels} />
-        <Route path="/trends" component={Trends} />
+        {/* <Route path="/trends" component={Trends} /> */}
         <Route path="/sheets" component={Sheets} />
         <Route path="/reports/live-sales" component={ReportLiveSales} />
         <Route path="/reports/paid-ads" component={ReportPaidAds} />

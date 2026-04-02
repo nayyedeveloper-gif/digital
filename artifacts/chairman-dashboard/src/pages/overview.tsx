@@ -1,9 +1,9 @@
-import { useGetDashboardOverview, useGetMonthlyTrend } from "@workspace/api-client-react";
+import { useGetDashboardOverview, useGetMonthlyTrend, useGetChannels, useGetCampaigns } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { ArrowUpRight, DollarSign, Target, MousePointerClick, Percent, Eye } from "lucide-react";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { ArrowUpRight, DollarSign, Target, MousePointerClick, Percent, Eye, TrendingUp, TrendingDown, Activity } from "lucide-react";
 
 function MetricCard({ 
   title, 
@@ -33,9 +33,13 @@ function MetricCard({
   );
 }
 
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(210, 100%, 60%)', 'hsl(45, 100%, 60%)', 'hsl(160, 100%, 40%)'];
+
 export default function Overview() {
   const { data: overview, isLoading: overviewLoading } = useGetDashboardOverview();
   const { data: trendData, isLoading: trendLoading } = useGetMonthlyTrend();
+  const { data: channelData, isLoading: channelLoading } = useGetChannels();
+  const { data: campaignData, isLoading: campaignLoading } = useGetCampaigns();
 
   // Sanitize chart data to prevent SVG path errors
   const sanitizedTrendData = (trendData?.trend || []).filter(item => {
@@ -47,6 +51,24 @@ export default function Overview() {
     revenue: Number(item.revenue) || 0,
     spend: Number(item.spend) || 0
   }));
+
+  // Channel breakdown data
+  const channels = channelData?.channels || [];
+  const paidChannels = channels.filter(c => c.channel.toLowerCase() !== 'organic');
+  const channelPieData = paidChannels.map(c => ({
+    name: c.channel,
+    value: c.spend || 0
+  }));
+
+  // Top performing campaigns
+  const campaigns = campaignData?.campaigns || [];
+  const topCampaigns = [...campaigns]
+    .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+    .slice(0, 5);
+
+  // Calculate profit
+  const profit = (overview?.totalRevenue || 0) - (overview?.totalSpend || 0);
+  const profitMargin = overview?.totalRevenue ? (profit / overview.totalRevenue * 100) : 0;
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 md:px-0">
@@ -187,6 +209,133 @@ export default function Overview() {
                   </div>
                   <div className="font-bold text-lg sm:text-xl text-accent">{overview?.activeCampaigns || 0}</div>
                 </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <CardHeader>
+            <CardTitle className="text-base sm:text-lg">Channel Performance</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Spend distribution by channel</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {channelLoading ? (
+              <Skeleton className="h-[200px] w-full" />
+            ) : (
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={channelPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={70}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {channelPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+            <div className="mt-4 space-y-2">
+              {paidChannels.slice(0, 3).map((channel, i) => (
+                <div key={i} className="flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <span className="font-medium">{channel.channel}</span>
+                  </div>
+                  <span className="text-muted-foreground">{formatCurrency(channel.spend || 0)}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <CardHeader>
+            <CardTitle className="text-base sm:text-lg">Financial Summary</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Revenue, spend, and profit</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-green-500" />
+                  <span className="text-xs sm:text-sm font-medium">Net Profit</span>
+                </div>
+                <span className="text-base sm:text-lg font-bold text-green-500">{formatCurrency(profit)}</span>
+              </div>
+              <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <Percent className="h-4 w-4 text-blue-500" />
+                  <span className="text-xs sm:text-sm font-medium">Profit Margin</span>
+                </div>
+                <span className="text-base sm:text-lg font-bold text-blue-500">{profitMargin.toFixed(1)}%</span>
+              </div>
+              <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-purple-500" />
+                  <span className="text-xs sm:text-sm font-medium">Avg. Revenue/Campaign</span>
+                </div>
+                <span className="text-base sm:text-lg font-bold text-purple-500">
+                  {overview?.activeCampaigns ? formatCurrency(overview.totalRevenue / overview.activeCampaigns) : "$0"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-orange-500" />
+                  <span className="text-xs sm:text-sm font-medium">Conversion Rate</span>
+                </div>
+                <span className="text-base sm:text-lg font-bold text-orange-500">
+                  {overview?.totalClicks ? ((overview.totalConversions / overview.totalClicks) * 100).toFixed(2) : "0"}%
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+          <CardHeader>
+            <CardTitle className="text-base sm:text-lg">Top Campaigns by Revenue</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Best performing campaigns</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {campaignLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topCampaigns.map((campaign, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-muted-foreground">#{i + 1}</span>
+                        <p className="text-xs sm:text-sm font-medium truncate" title={campaign.name}>
+                          {campaign.name.length > 25 ? campaign.name.substring(0, 25) + '...' : campaign.name}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ROI: {formatPercent(campaign.roi || 0)}
+                      </p>
+                    </div>
+                    <div className="text-right ml-2">
+                      <p className="text-xs sm:text-sm font-bold text-primary">{formatCurrency(campaign.revenue || 0)}</p>
+                      <p className="text-xs text-muted-foreground">{campaign.conversions || 0} conv.</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>

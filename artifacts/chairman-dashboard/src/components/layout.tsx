@@ -20,7 +20,7 @@ const OVERVIEW_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/campaigns", label: "Campaigns", icon: TableProperties },
   { href: "/channels", label: "Channels", icon: BarChart3 },
-  { href: "/trends", label: "Trends", icon: TrendingUp },
+  // { href: "/trends", label: "Trends", icon: TrendingUp },
   { href: "/compare", label: "Compare", icon: GitCompare },
   { href: "/sheets", label: "Raw Data", icon: LineChart },
 ];
