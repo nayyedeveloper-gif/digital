@@ -94,8 +94,8 @@ export default function Overview() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+        <Card className="lg:col-span-4 bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
             <CardTitle className="text-base sm:text-lg">Revenue vs. Spend Trend</CardTitle>
             <CardDescription className="text-xs sm:text-sm">Monthly performance comparison</CardDescription>
@@ -145,10 +145,10 @@ export default function Overview() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="lg:col-span-3 bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle>Quick Insights</CardTitle>
-            <CardDescription>Efficiency metrics at a glance</CardDescription>
+            <CardTitle className="text-base sm:text-lg">Quick Insights</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Efficiency metrics at a glance</CardDescription>
           </CardHeader>
           <CardContent>
             {overviewLoading ? (
@@ -158,34 +158,34 @@ export default function Overview() {
                 <Skeleton className="h-16 w-full" />
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-border/50 pb-4">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-center justify-between border-b border-border/50 pb-3 sm:pb-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Cost Per Acquisition (CPA)</p>
-                    <p className="text-sm text-muted-foreground">Average cost per conversion</p>
+                    <p className="text-xs sm:text-sm font-medium leading-none">Cost Per Acquisition (CPA)</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Average cost per conversion</p>
                   </div>
-                  <div className="font-bold text-xl">{overview ? formatCurrency(overview.overallCPA) : "$0"}</div>
+                  <div className="font-bold text-lg sm:text-xl">{overview ? formatCurrency(overview.overallCPA) : "$0"}</div>
                 </div>
-                <div className="flex items-center justify-between border-b border-border/50 pb-4">
+                <div className="flex items-center justify-between border-b border-border/50 pb-3 sm:pb-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Cost Per Click (CPC)</p>
-                    <p className="text-sm text-muted-foreground">Average cost per click</p>
+                    <p className="text-xs sm:text-sm font-medium leading-none">Cost Per Click (CPC)</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Average cost per click</p>
                   </div>
-                  <div className="font-bold text-xl">{overview ? formatCurrency(overview.overallCPC) : "$0"}</div>
+                  <div className="font-bold text-lg sm:text-xl">{overview ? formatCurrency(overview.overallCPC) : "$0"}</div>
                 </div>
-                <div className="flex items-center justify-between border-b border-border/50 pb-4">
+                <div className="flex items-center justify-between border-b border-border/50 pb-3 sm:pb-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Click-Through Rate (CTR)</p>
-                    <p className="text-sm text-muted-foreground">Clicks vs Impressions</p>
+                    <p className="text-xs sm:text-sm font-medium leading-none">Click-Through Rate (CTR)</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Clicks vs Impressions</p>
                   </div>
-                  <div className="font-bold text-xl text-primary">{overview ? formatPercent(overview.overallCTR) : "0%"}</div>
+                  <div className="font-bold text-lg sm:text-xl text-primary">{overview ? formatPercent(overview.overallCTR) : "0%"}</div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">Active Campaigns</p>
-                    <p className="text-sm text-muted-foreground">Currently running</p>
+                    <p className="text-xs sm:text-sm font-medium leading-none">Active Campaigns</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Currently running</p>
                   </div>
-                  <div className="font-bold text-xl text-accent">{overview?.activeCampaigns || 0}</div>
+                  <div className="font-bold text-lg sm:text-xl text-accent">{overview?.activeCampaigns || 0}</div>
                 </div>
               </div>
             )}
