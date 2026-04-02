@@ -18,15 +18,15 @@ function MetricCard({
 }) {
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/80 transition-colors">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-primary" />
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-primary flex-shrink-0" />
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton className="h-8 w-[100px]" />
+          <Skeleton className="h-6 sm:h-8 w-[80px] sm:w-[100px]" />
         ) : (
-          <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
+          <div className="text-lg sm:text-2xl font-bold tracking-tight text-foreground break-all">{value}</div>
         )}
       </CardContent>
     </Card>
@@ -49,13 +49,13 @@ export default function Overview() {
   }));
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 md:px-0">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Executive Overview</h1>
-        <p className="text-muted-foreground mt-2">Real-time aggregate performance metrics across all active campaigns.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Executive Overview</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-2">Real-time aggregate performance metrics across all active campaigns.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <MetricCard 
           title="Total Revenue" 
           value={overview ? formatCurrency(overview.totalRevenue) : "$0"} 
@@ -95,18 +95,18 @@ export default function Overview() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-card/50 backdrop-blur-sm border-border/50">
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle>Revenue vs Spend Trend</CardTitle>
-            <CardDescription>Monthly aggregate performance</CardDescription>
+            <CardTitle className="text-base sm:text-lg">Revenue vs. Spend Trend</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Monthly performance comparison</CardDescription>
           </CardHeader>
-          <CardContent className="pl-0">
+          <CardContent>
             {trendLoading ? (
-              <Skeleton className="h-[300px] w-full ml-6" />
+              <Skeleton className="h-[250px] sm:h-[350px] md:h-[400px] w-full" />
             ) : (
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[350px] md:h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={sanitizedTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <AreaChart data={sanitizedTrendData} margin={{ top: 10, right: window.innerWidth < 640 ? 10 : 30, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -117,22 +117,19 @@ export default function Overview() {
                         <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis 
                       dataKey="month" 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false}
-                      dy={10}
+                      fontSize={window.innerWidth < 640 ? 10 : 12}
+                      angle={window.innerWidth < 640 ? -45 : 0}
+                      textAnchor={window.innerWidth < 640 ? "end" : "middle"}
+                      height={window.innerWidth < 640 ? 60 : 30}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`}
-                      dx={-10}
+                      fontSize={window.innerWidth < 640 ? 10 : 12}
+                      tickFormatter={(value) => `$${value >= 1000000 ? `${(value / 1000000).toFixed(0)}M` : value >= 1000 ? `${(value / 1000).toFixed(0)}K` : value}`}
                     />
                     <Tooltip 
                       contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}

@@ -55,13 +55,13 @@ export default function Campaigns() {
     }));
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 md:px-0">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Campaigns</h1>
-        <p className="text-muted-foreground mt-2">Detailed performance breakdown for all active and historical campaigns.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Campaigns</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-2">Detailed performance breakdown for all active and historical campaigns.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
             <CardTitle>Spend Distribution by Channel</CardTitle>
@@ -71,7 +71,7 @@ export default function Campaigns() {
             {isLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : (
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -79,8 +79,8 @@ export default function Campaigns() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, payload }) => `${name}: ${payload.percentage.toFixed(1)}%`}
-                      outerRadius={80}
+                      label={({ name, payload }) => window.innerWidth < 640 ? `${payload.percentage.toFixed(0)}%` : `${name}: ${payload.percentage.toFixed(1)}%`}
+                      outerRadius={window.innerWidth < 640 ? 60 : 80}
                       fill="hsl(var(--primary))"
                       dataKey="value"
                     >
@@ -110,12 +110,12 @@ export default function Campaigns() {
             {isLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : (
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topCampaigns} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
+                  <BarChart data={topCampaigns} layout="vertical" margin={{ top: 5, right: 10, left: window.innerWidth < 640 ? 80 : 100, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
-                    <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} width={90} />
+                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={window.innerWidth < 640 ? 10 : 12} tickFormatter={(value) => `$${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
+                    <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={window.innerWidth < 640 ? 9 : 11} width={window.innerWidth < 640 ? 70 : 90} />
                     <Tooltip 
                       contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                       formatter={(value: number) => formatCurrency(value)}
@@ -129,18 +129,18 @@ export default function Campaigns() {
         </Card>
       </div>
 
-      <div className="rounded-md border border-border bg-card/50 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-md border border-border bg-card/50 backdrop-blur-sm overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Channel</TableHead>
-              <TableHead className="w-[250px]">Campaign Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Spend</TableHead>
-              <TableHead className="text-right">Revenue</TableHead>
-              <TableHead className="text-right">ROI</TableHead>
-              <TableHead className="text-right">Conversions</TableHead>
-              <TableHead className="text-right">CPA</TableHead>
+              <TableHead className="min-w-[100px]">Channel</TableHead>
+              <TableHead className="min-w-[200px]">Campaign Name</TableHead>
+              <TableHead className="min-w-[80px]">Status</TableHead>
+              <TableHead className="text-right min-w-[80px]">Spend</TableHead>
+              <TableHead className="text-right min-w-[100px]">Revenue</TableHead>
+              <TableHead className="text-right min-w-[80px]">ROI</TableHead>
+              <TableHead className="text-right min-w-[100px]">Conversions</TableHead>
+              <TableHead className="text-right min-w-[80px]">CPA</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -160,11 +160,15 @@ export default function Campaigns() {
             ) : campaignData?.campaigns?.map((campaign, i) => (
               <TableRow key={i} className="hover:bg-muted/30">
                 <TableCell>
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold whitespace-nowrap">
                     {campaign.channel}
                   </span>
                 </TableCell>
-                <TableCell className="font-medium">{campaign.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="max-w-[300px] truncate" title={campaign.name}>
+                    {campaign.name}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Badge 
                     variant="outline" 
@@ -177,13 +181,13 @@ export default function Campaigns() {
                     {campaign.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right font-mono text-sm">{formatCurrency(campaign.spend)}</TableCell>
-                <TableCell className="text-right font-mono text-sm">{formatCurrency(campaign.revenue)}</TableCell>
-                <TableCell className="text-right font-mono text-sm text-primary">
+                <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">{formatCurrency(campaign.spend)}</TableCell>
+                <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">{formatCurrency(campaign.revenue)}</TableCell>
+                <TableCell className="text-right font-mono text-xs sm:text-sm text-primary whitespace-nowrap">
                   {formatPercent(campaign.roi)}
                 </TableCell>
-                <TableCell className="text-right font-mono text-sm">{formatNumber(campaign.conversions)}</TableCell>
-                <TableCell className="text-right font-mono text-sm">{formatCurrency(campaign.cpa)}</TableCell>
+                <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">{formatNumber(campaign.conversions)}</TableCell>
+                <TableCell className="text-right font-mono text-xs sm:text-sm whitespace-nowrap">{formatCurrency(campaign.cpa)}</TableCell>
               </TableRow>
             ))}
             {!isLoading && campaignData?.campaigns?.length === 0 && (
