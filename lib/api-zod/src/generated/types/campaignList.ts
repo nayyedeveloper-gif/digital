@@ -5,7 +5,9 @@
  * Digital Marketing Chairman Dashboard API
  * OpenAPI spec version: 0.1.0
  */
+import type { Campaign } from "./campaign";
 
-export interface HealthStatus {
-  status: string;
+export interface CampaignList {
+  campaigns: Campaign[];
+  total: number;
 }

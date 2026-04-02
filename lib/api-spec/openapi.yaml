@@ -1,15 +1,16 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Digital Marketing Chairman Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+    description: Dashboard data from Google Sheets
 paths:
   /healthz:
     get:
@@ -24,6 +25,134 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard/overview:
+    get:
+      operationId: getDashboardOverview
+      tags: [dashboard]
+      summary: Get dashboard overview KPIs
+      description: Returns high-level KPI metrics from the Google Sheet
+      responses:
+        "200":
+          description: Dashboard overview data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardOverview"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/sheets:
+    get:
+      operationId: getSheetsList
+      tags: [dashboard]
+      summary: Get list of available sheets
+      description: Returns list of sheet names in the spreadsheet
+      responses:
+        "200":
+          description: List of sheets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SheetsList"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/sheet/{sheetName}:
+    get:
+      operationId: getSheetData
+      tags: [dashboard]
+      summary: Get data from a specific sheet
+      description: Returns all rows from a specific sheet tab
+      parameters:
+        - name: sheetName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the sheet tab
+      responses:
+        "200":
+          description: Sheet data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SheetData"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/campaigns:
+    get:
+      operationId: getCampaigns
+      tags: [dashboard]
+      summary: Get campaign performance data
+      description: Returns campaign performance metrics
+      responses:
+        "200":
+          description: Campaign data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignList"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/channels:
+    get:
+      operationId: getChannels
+      tags: [dashboard]
+      summary: Get channel performance breakdown
+      description: Returns performance breakdown by marketing channel
+      responses:
+        "200":
+          description: Channel performance data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChannelList"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard/monthly-trend:
+    get:
+      operationId: getMonthlyTrend
+      tags: [dashboard]
+      summary: Get monthly performance trend
+      description: Returns monthly aggregated performance metrics
+      responses:
+        "200":
+          description: Monthly trend data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyTrendList"
+        "500":
+          description: Error fetching data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +163,216 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    DashboardOverview:
+      type: object
+      properties:
+        totalBudget:
+          type: number
+        totalSpend:
+          type: number
+        totalRevenue:
+          type: number
+        totalImpressions:
+          type: number
+        totalClicks:
+          type: number
+        totalConversions:
+          type: number
+        overallROI:
+          type: number
+        overallCTR:
+          type: number
+        overallCPC:
+          type: number
+        overallCPA:
+          type: number
+        activeCampaigns:
+          type: integer
+        lastUpdated:
+          type: string
+      required:
+        - totalBudget
+        - totalSpend
+        - totalRevenue
+        - totalImpressions
+        - totalClicks
+        - totalConversions
+        - overallROI
+        - overallCTR
+        - overallCPC
+        - overallCPA
+        - activeCampaigns
+        - lastUpdated
+
+    SheetsList:
+      type: object
+      properties:
+        sheets:
+          type: array
+          items:
+            type: string
+      required:
+        - sheets
+
+    SheetData:
+      type: object
+      properties:
+        sheetName:
+          type: string
+        headers:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        totalRows:
+          type: integer
+      required:
+        - sheetName
+        - headers
+        - rows
+        - totalRows
+
+    Campaign:
+      type: object
+      properties:
+        name:
+          type: string
+        channel:
+          type: string
+        status:
+          type: string
+        budget:
+          type: number
+        spend:
+          type: number
+        impressions:
+          type: number
+        clicks:
+          type: number
+        conversions:
+          type: number
+        revenue:
+          type: number
+        roi:
+          type: number
+        ctr:
+          type: number
+        cpc:
+          type: number
+        cpa:
+          type: number
+      required:
+        - name
+        - channel
+        - status
+        - budget
+        - spend
+        - impressions
+        - clicks
+        - conversions
+        - revenue
+        - roi
+        - ctr
+        - cpc
+        - cpa
+
+    CampaignList:
+      type: object
+      properties:
+        campaigns:
+          type: array
+          items:
+            $ref: "#/components/schemas/Campaign"
+        total:
+          type: integer
+      required:
+        - campaigns
+        - total
+
+    Channel:
+      type: object
+      properties:
+        channel:
+          type: string
+        spend:
+          type: number
+        revenue:
+          type: number
+        impressions:
+          type: number
+        clicks:
+          type: number
+        conversions:
+          type: number
+        roi:
+          type: number
+        ctr:
+          type: number
+      required:
+        - channel
+        - spend
+        - revenue
+        - impressions
+        - clicks
+        - conversions
+        - roi
+        - ctr
+
+    ChannelList:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Channel"
+      required:
+        - channels
+
+    MonthlyTrend:
+      type: object
+      properties:
+        month:
+          type: string
+        spend:
+          type: number
+        revenue:
+          type: number
+        impressions:
+          type: number
+        clicks:
+          type: number
+        conversions:
+          type: number
+        roi:
+          type: number
+      required:
+        - month
+        - spend
+        - revenue
+        - impressions
+        - clicks
+        - conversions
+        - roi
+
+    MonthlyTrendList:
+      type: object
+      properties:
+        trend:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyTrend"
+      required:
+        - trend

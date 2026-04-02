@@ -5,7 +5,8 @@
  * Digital Marketing Chairman Dashboard API
  * OpenAPI spec version: 0.1.0
  */
+import type { Channel } from "./channel";
 
-export interface HealthStatus {
-  status: string;
+export interface ChannelList {
+  channels: Channel[];
 }
