@@ -12,6 +12,7 @@ import {
   Leaf,
   CalendarDays,
   Zap,
+  GitCompare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const OVERVIEW_ITEMS = [
   { href: "/campaigns", label: "Campaigns", icon: TableProperties },
   { href: "/channels", label: "Channels", icon: BarChart3 },
   { href: "/trends", label: "Trends", icon: TrendingUp },
+  { href: "/compare", label: "Compare", icon: GitCompare },
   { href: "/sheets", label: "Raw Data", icon: LineChart },
 ];
 

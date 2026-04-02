@@ -16,6 +16,7 @@ import ReportPaidAds from "@/pages/report-paid-ads";
 import ReportOrganic from "@/pages/report-organic";
 import ReportDailyPosts from "@/pages/report-daily-posts";
 import ReportDailyAds from "@/pages/report-daily-ads";
+import Compare from "@/pages/compare";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ function Router() {
         <Route path="/reports/organic" component={ReportOrganic} />
         <Route path="/reports/daily-posts" component={ReportDailyPosts} />
         <Route path="/reports/daily-ads" component={ReportDailyAds} />
+        <Route path="/compare" component={Compare} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
