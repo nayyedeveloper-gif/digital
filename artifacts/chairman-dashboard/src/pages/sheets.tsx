@@ -40,7 +40,7 @@ export default function Sheets() {
                 <SelectValue placeholder="Select a sheet" />
               </SelectTrigger>
               <SelectContent>
-                {sheetsList?.sheets.map((sheet) => (
+                {sheetsList?.sheets?.map((sheet) => (
                   <SelectItem key={sheet} value={sheet}>
                     {sheet}
                   </SelectItem>
@@ -75,7 +75,7 @@ export default function Sheets() {
                       Array.from({ length: 6 }).map((_, i) => (
                         <TableHead key={i}><Skeleton className="h-4 w-[120px]" /></TableHead>
                       ))
-                    ) : sheetData?.headers.map((header, i) => (
+                    ) : sheetData?.headers?.map((header, i) => (
                       <TableHead key={i} className="whitespace-nowrap font-semibold text-muted-foreground">
                         {header}
                       </TableHead>
@@ -91,7 +91,7 @@ export default function Sheets() {
                         ))}
                       </TableRow>
                     ))
-                  ) : sheetData?.rows.map((row, i) => (
+                  ) : sheetData?.rows?.map((row, i) => (
                     <TableRow key={i} className="hover:bg-muted/30">
                       {row.map((cell, j) => (
                         <TableCell key={j} className="whitespace-nowrap text-sm font-mono text-muted-foreground">
@@ -100,9 +100,9 @@ export default function Sheets() {
                       ))}
                     </TableRow>
                   ))}
-                  {!isLoading && sheetData?.rows.length === 0 && (
+                  {!isLoading && sheetData?.rows?.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={sheetData.headers.length || 1} className="h-32 text-center text-muted-foreground">
+                      <TableCell colSpan={sheetData?.headers?.length || 1} className="h-32 text-center text-muted-foreground">
                         No data found in this sheet.
                       </TableCell>
                     </TableRow>

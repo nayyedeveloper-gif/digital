@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout";
 import { useEffect } from "react";
+import { setBaseUrl } from "@workspace/api-client-react";
 
 // Pages
 import Overview from "@/pages/overview";
@@ -41,6 +42,10 @@ function Router() {
     </Layout>
   );
 }
+
+// Configure API base URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+setBaseUrl(API_BASE_URL);
 
 function App() {
   useEffect(() => {

@@ -37,6 +37,17 @@ export default function Overview() {
   const { data: overview, isLoading: overviewLoading } = useGetDashboardOverview();
   const { data: trendData, isLoading: trendLoading } = useGetMonthlyTrend();
 
+  // Sanitize chart data to prevent SVG path errors
+  const sanitizedTrendData = (trendData?.trend || []).filter(item => {
+    const revenue = Number(item.revenue);
+    const spend = Number(item.spend);
+    return !isNaN(revenue) && !isNaN(spend) && isFinite(revenue) && isFinite(spend);
+  }).map(item => ({
+    ...item,
+    revenue: Number(item.revenue) || 0,
+    spend: Number(item.spend) || 0
+  }));
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
@@ -95,7 +106,7 @@ export default function Overview() {
             ) : (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trendData?.trend || []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <AreaChart data={sanitizedTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>

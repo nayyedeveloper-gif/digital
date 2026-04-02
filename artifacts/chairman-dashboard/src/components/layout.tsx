@@ -44,7 +44,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
             <Activity className="h-5 w-5" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">Chairman HQ</span>
+          <span className="text-lg font-semibold tracking-tight">Digital Marketing</span>
         </div>
 
         <div className="py-6 px-4">

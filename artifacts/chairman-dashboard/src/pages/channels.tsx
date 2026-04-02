@@ -9,7 +9,7 @@ const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 export default function Channels() {
   const { data: channelData, isLoading } = useGetChannels();
 
-  const pieData = channelData?.channels.map(c => ({
+  const pieData = channelData?.channels?.map(c => ({
     name: c.channel,
     value: c.spend
   })) || [];
@@ -106,7 +106,7 @@ export default function Channels() {
            Array.from({ length: 4 }).map((_, i) => (
              <Skeleton key={i} className="h-32 w-full rounded-xl" />
            ))
-        ) : channelData?.channels.map(channel => (
+        ) : channelData?.channels?.map(channel => (
           <Card key={channel.channel} className="bg-card/30 border-border/40">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center justify-between">
