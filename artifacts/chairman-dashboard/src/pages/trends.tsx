@@ -1,11 +1,11 @@
-import { useMonthlyTrend } from "@/lib/useGoogleSheets";
+import { useGetMonthlyTrend } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 
 export default function Trends() {
-  const { data: trendData, isLoading } = useMonthlyTrend();
+  const { data: trendData, isLoading } = useGetMonthlyTrend();
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { useSheetsList, useSheetData } from "@/lib/useGoogleSheets";
+import { useGetSheetsList, useGetSheetData, getGetSheetDataQueryKey } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function Sheets() {
-  const { data: sheetsList, isLoading: sheetsListLoading } = useSheetsList();
-  const [selectedSheet, setSelectedSheet] = useState<string | null>(null);
+  const { data: sheetsList, isLoading: sheetsListLoading } = useGetSheetsList();
+  const [selectedSheet, setSelectedSheet] = useState<string>("");
 
   useEffect(() => {
     if (sheetsList?.sheets && sheetsList.sheets.length > 0 && !selectedSheet) {
@@ -15,7 +15,12 @@ export default function Sheets() {
     }
   }, [sheetsList, selectedSheet]);
 
-  const { data: sheetData, isLoading: sheetDataLoading, isFetching: sheetDataFetching } = useSheetData(selectedSheet);
+  const { data: sheetData, isLoading: sheetDataLoading, isFetching: sheetDataFetching } = useGetSheetData(selectedSheet, {
+    query: {
+      enabled: !!selectedSheet,
+      queryKey: getGetSheetDataQueryKey(selectedSheet),
+    },
+  });
 
   const isLoading = sheetDataLoading || sheetDataFetching || sheetsListLoading;
 
@@ -30,7 +35,7 @@ export default function Sheets() {
           {sheetsListLoading ? (
             <Skeleton className="h-10 w-full" />
           ) : (
-            <Select value={selectedSheet ?? ""} onValueChange={setSelectedSheet}>
+            <Select value={selectedSheet} onValueChange={setSelectedSheet}>
               <SelectTrigger className="w-full bg-card/50 border-border/50">
                 <SelectValue placeholder="Select a sheet" />
               </SelectTrigger>
@@ -57,7 +62,7 @@ export default function Sheets() {
             )}
           </CardTitle>
           <CardDescription>
-            {selectedSheet ? `Viewing raw data from tab: ${selectedSheet}` : 'Select a sheet to view data'}
+            {selectedSheet ? `Viewing raw data from tab: ${selectedSheet}` : "Select a sheet to view data"}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">

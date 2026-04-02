@@ -1,4 +1,4 @@
-import { useChannels } from "@/lib/useGoogleSheets";
+import { useGetChannels } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatPercent } from "@/lib/utils";
@@ -7,7 +7,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function Channels() {
-  const { data: channelData, isLoading } = useChannels();
+  const { data: channelData, isLoading } = useGetChannels();
 
   const pieData = channelData?.channels.map(c => ({
     name: c.channel,

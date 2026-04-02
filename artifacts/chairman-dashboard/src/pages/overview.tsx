@@ -1,4 +1,4 @@
-import { useDashboardOverview, useMonthlyTrend } from "@/lib/useGoogleSheets";
+import { useGetDashboardOverview, useGetMonthlyTrend } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
@@ -34,8 +34,8 @@ function MetricCard({
 }
 
 export default function Overview() {
-  const { data: overview, isLoading: overviewLoading } = useDashboardOverview();
-  const { data: trendData, isLoading: trendLoading } = useMonthlyTrend();
+  const { data: overview, isLoading: overviewLoading } = useGetDashboardOverview();
+  const { data: trendData, isLoading: trendLoading } = useGetMonthlyTrend();
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

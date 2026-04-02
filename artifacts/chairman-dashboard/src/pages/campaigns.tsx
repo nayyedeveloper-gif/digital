@@ -1,11 +1,11 @@
-import { useCampaigns } from "@/lib/useGoogleSheets";
+import { useGetCampaigns } from "@workspace/api-client-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 
 export default function Campaigns() {
-  const { data: campaignData, isLoading } = useCampaigns();
+  const { data: campaignData, isLoading } = useGetCampaigns();
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

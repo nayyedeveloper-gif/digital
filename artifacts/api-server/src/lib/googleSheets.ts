@@ -2,34 +2,30 @@ import { google } from "googleapis";
 
 export const SPREADSHEET_ID = "1i668-EeCl3J1eDHCApSXO7r7-YHen7ACc4YevsJWqVY";
 
-export function getGoogleSheetsClient(accessToken: string) {
-  const oauth2Client = new google.auth.OAuth2();
-  oauth2Client.setCredentials({ access_token: accessToken });
-  return google.sheets({ version: "v4", auth: oauth2Client });
-}
+// Google Sheets integration via Replit connector: conn_google-sheet_01KN6ER1DS2MHG9P9XDPHX0470
+let connectionSettings: any;
 
-export function parseNumber(value: string | undefined | null): number {
-  if (!value) return 0;
-  const cleaned = value.replace(/[^0-9.-]/g, "");
-  return parseFloat(cleaned) || 0;
-}
-
-export async function fetchAccessToken(): Promise<string> {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  if (!hostname) throw new Error("REPLIT_CONNECTORS_HOSTNAME not set");
-
-  const replIdentity = process.env.REPL_IDENTITY;
-  const webRenewal = process.env.WEB_REPL_RENEWAL;
-
-  if (!replIdentity && !webRenewal) {
-    throw new Error("No Replit identity available");
+async function getAccessToken() {
+  if (
+    connectionSettings &&
+    connectionSettings.settings.expires_at &&
+    new Date(connectionSettings.settings.expires_at).getTime() > Date.now()
+  ) {
+    return connectionSettings.settings.access_token;
   }
 
-  const xReplitToken = replIdentity
-    ? "repl " + replIdentity
-    : "depl " + webRenewal;
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY
+    ? "repl " + process.env.REPL_IDENTITY
+    : process.env.WEB_REPL_RENEWAL
+      ? "depl " + process.env.WEB_REPL_RENEWAL
+      : null;
 
-  const response = await fetch(
+  if (!xReplitToken) {
+    throw new Error("X-Replit-Token not found for repl/depl");
+  }
+
+  connectionSettings = await fetch(
     "https://" +
       hostname +
       "/api/v2/connection?include_secrets=true&connector_names=google-sheet",
@@ -39,22 +35,36 @@ export async function fetchAccessToken(): Promise<string> {
         "X-Replit-Token": xReplitToken,
       },
     },
-  );
-
-  const data = await response.json();
-  const item = data.items?.[0];
-
-  if (!item) {
-    throw new Error("Google Sheet connection not found");
-  }
+  )
+    .then((res) => res.json())
+    .then((data) => data.items?.[0]);
 
   const accessToken =
-    item?.settings?.access_token ||
-    item?.settings?.oauth?.credentials?.access_token;
+    connectionSettings?.settings?.access_token ||
+    connectionSettings.settings?.oauth?.credentials?.access_token;
 
-  if (!accessToken) {
-    throw new Error("No access token in connection settings");
+  if (!connectionSettings || !accessToken) {
+    throw new Error("Google Sheet not connected");
   }
-
   return accessToken;
+}
+
+// WARNING: Never cache this client.
+// Access tokens expire, so a new client must be created each time.
+// Always call this function again to get a fresh client.
+export async function getUncachableGoogleSheetClient() {
+  const accessToken = await getAccessToken();
+
+  const oauth2Client = new google.auth.OAuth2();
+  oauth2Client.setCredentials({
+    access_token: accessToken,
+  });
+
+  return google.sheets({ version: "v4", auth: oauth2Client });
+}
+
+export function parseNumber(value: string | undefined | null): number {
+  if (!value) return 0;
+  const cleaned = value.replace(/[^0-9.-]/g, "");
+  return parseFloat(cleaned) || 0;
 }
