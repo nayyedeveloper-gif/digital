@@ -27,7 +27,10 @@ export default function Campaigns() {
   }, {} as Record<string, { channel: string; spend: number; revenue: number; conversions: number; count: number }>);
 
   const channelChartData = Object.values(channelData);
-  const pieData = channelChartData.map(d => ({ name: d.channel, value: d.spend }));
+  // Use revenue for pie chart so Organic channels are visible (they have 0 spend but have revenue)
+  const pieData = channelChartData
+    .map(d => ({ name: d.channel, value: d.revenue }))
+    .filter(d => d.value > 0); // Only show channels with revenue
 
   // Top campaigns by spend
   const topCampaigns = [...campaigns]
@@ -49,8 +52,8 @@ export default function Campaigns() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle>Spend Distribution by Channel</CardTitle>
-            <CardDescription>Budget allocation across channels</CardDescription>
+            <CardTitle>Revenue Distribution by Channel</CardTitle>
+            <CardDescription>Revenue performance across all channels</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
