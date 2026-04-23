@@ -41,9 +41,7 @@ export function Layout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="fixed top-0 left-0 z-40 h-screen w-64 border-r border-border bg-card overflow-y-auto">
         <div className="flex h-16 items-center border-b border-border px-6 gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
-            <Activity className="h-5 w-5" />
-          </div>
+          <img src="/logo.png" alt="Logo" className="h-8 w-8 rounded-md" />
           <span className="text-lg font-semibold tracking-tight">Digital Marketing</span>
         </div>
 
