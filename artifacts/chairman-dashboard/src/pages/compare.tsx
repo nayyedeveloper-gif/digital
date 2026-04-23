@@ -3,8 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useMemo } from "react";
 import { formatNumber, formatCurrency } from "@/lib/utils";
+import { Filter, X, Calendar } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -145,10 +149,15 @@ function ChannelBar({ label, aVal, bVal, max, colorA, colorB }: {
 export default function Compare() {
   const [periodA, setPeriodA] = useState("0");
   const [periodB, setPeriodB] = useState("1");
+  
+  // Filter states
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(["revenue", "spend", "views", "impressions"]);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const { data: liveSalesData, isLoading: ls } = useGetSheetData("Live Sales Daily Report", { query: { enabled: true } });
-  const { data: dailyAdsData, isLoading: da } = useGetSheetData("Daily Ads Report", { query: { enabled: true } });
-  const { data: reportData, isLoading: rp } = useGetSheetData("Report", { query: { enabled: true } });
+  const { data: liveSalesData, isLoading: ls } = useGetSheetData("Live Sales Daily Report");
+  const { data: dailyAdsData, isLoading: da } = useGetSheetData("Daily Ads Report");
+  const { data: reportData, isLoading: rp } = useGetSheetData("Report");
 
   const isLoading = ls || da || rp;
 
@@ -333,6 +342,100 @@ export default function Compare() {
         <h1 className="text-3xl font-bold tracking-tight">Comparison Analysis</h1>
         <p className="text-muted-foreground mt-2">Side-by-side period, channel, and creator performance comparison.</p>
       </div>
+
+      {/* Filter Controls */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Data Filters</CardTitle>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? <X className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+            </Button>
+          </div>
+        </CardHeader>
+        {showFilters && (
+          <CardContent className="space-y-6">
+            {/* Channel Filter */}
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">Filter by Channel</Label>
+              <div className="flex flex-wrap gap-2">
+                {channels.map((channel) => (
+                  <Badge
+                    key={channel}
+                    variant={selectedChannels.includes(channel) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedChannels(prev =>
+                        prev.includes(channel)
+                          ? prev.filter(c => c !== channel)
+                          : [...prev, channel]
+                      );
+                    }}
+                  >
+                    {channel}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Metrics Filter */}
+            <div>
+              <Label className="text-sm font-semibold mb-3 block">Select Metrics</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { id: "revenue", label: "Revenue" },
+                  { id: "spend", label: "Spend" },
+                  { id: "views", label: "Views" },
+                  { id: "impressions", label: "Impressions" },
+                  { id: "engagement", label: "Engagement" },
+                  { id: "comments", label: "Comments" },
+                  { id: "reactions", label: "Reactions" },
+                  { id: "reach", label: "Reach" },
+                ].map((metric) => (
+                  <div key={metric.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={metric.id}
+                      checked={selectedMetrics.includes(metric.id)}
+                      onCheckedChange={(checked) => {
+                        setSelectedMetrics(prev =>
+                          checked
+                            ? [...prev, metric.id]
+                            : prev.filter(m => m !== metric.id)
+                        );
+                      }}
+                    />
+                    <Label htmlFor={metric.id} className="text-sm cursor-pointer">
+                      {metric.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedChannels([]);
+                  setSelectedMetrics(["revenue", "spend", "views", "impressions"]);
+                }}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear All Filters
+              </Button>
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
       {/* ── SECTION 1: Period Comparison ─────────────────────────────────── */}
       <div>

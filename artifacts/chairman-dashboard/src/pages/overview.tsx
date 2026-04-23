@@ -1,9 +1,11 @@
 import { useGetDashboardOverview, useGetMonthlyTrend, useGetChannels, useGetCampaigns } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
-import { ArrowUpRight, DollarSign, Target, MousePointerClick, Percent, Eye, TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { ArrowUpRight, DollarSign, Target, MousePointerClick, Percent, Eye, TrendingUp, TrendingDown, Activity, ChevronDown, ChevronUp, Info, Calendar } from "lucide-react";
+import { useState } from "react";
 
 function MetricCard({ 
   title, 
@@ -36,6 +38,8 @@ function MetricCard({
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(210, 100%, 60%)', 'hsl(45, 100%, 60%)', 'hsl(160, 100%, 40%)'];
 
 export default function Overview() {
+  const [showMoreDetails, setShowMoreDetails] = useState(false);
+  
   const { data: overview, isLoading: overviewLoading } = useGetDashboardOverview();
   const { data: trendData, isLoading: trendLoading } = useGetMonthlyTrend();
   const { data: channelData, isLoading: channelLoading } = useGetChannels();
@@ -341,6 +345,151 @@ export default function Overview() {
           </CardContent>
         </Card>
       </div>
+
+      {/* More Details Section */}
+      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base sm:text-lg">More Details</CardTitle>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowMoreDetails(!showMoreDetails)}
+            >
+              {showMoreDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
+          <CardDescription className="text-xs sm:text-sm">
+            Additional metrics and data source information
+          </CardDescription>
+        </CardHeader>
+        {showMoreDetails && (
+          <CardContent className="space-y-6">
+            {/* Data Source Info */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  Data Source Information
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Updated:</span>
+                    <span className="font-medium">
+                      {overview?.lastUpdated 
+                        ? new Date(overview.lastUpdated).toLocaleString()
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Active Campaigns:</span>
+                    <span className="font-medium">{overview?.activeCampaigns || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Data Period:</span>
+                    <span className="font-medium">Last 6 months</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  Performance Summary
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total ROI:</span>
+                    <span className="font-medium text-green-500">
+                      {overview ? formatPercent(overview.overallROI) : "0%"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Profit Margin:</span>
+                    <span className="font-medium text-blue-500">
+                      {profitMargin.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Conversion Rate:</span>
+                    <span className="font-medium text-orange-500">
+                      {overview?.totalClicks 
+                        ? ((overview.totalConversions / overview.totalClicks) * 100).toFixed(2) 
+                        : "0"}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Detailed Channel Breakdown */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Detailed Channel Breakdown</h4>
+              <div className="space-y-3">
+                {channels.map((channel, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-muted/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{channel.channel}</span>
+                      <div className="flex gap-4 text-xs">
+                        <span className="text-muted-foreground">
+                          Rev: {formatCurrency(channel.revenue || 0)}
+                        </span>
+                        <span className="text-muted-foreground">
+                          Spend: {formatCurrency(channel.spend || 0)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">ROI:</span>
+                        <span className="ml-1 font-medium">{formatPercent(channel.roi || 0)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">CTR:</span>
+                        <span className="ml-1 font-medium">{formatPercent(channel.ctr || 0)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Conv:</span>
+                        <span className="ml-1 font-medium">{formatNumber(channel.conversions || 0)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Campaigns Extended */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Top 10 Campaigns Performance</h4>
+              <div className="space-y-2">
+                {campaigns
+                  .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+                  .slice(0, 10)
+                  .map((campaign, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded bg-muted/30 text-xs">
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium truncate block">
+                          {i + 1}. {campaign.name}
+                        </span>
+                      </div>
+                      <div className="flex gap-4 ml-2">
+                        <span className="text-muted-foreground">
+                          {formatCurrency(campaign.revenue || 0)}
+                        </span>
+                        <span className={campaign.roi && campaign.roi > 0 ? "text-green-500" : "text-red-500"}>
+                          {formatPercent(campaign.roi || 0)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }
