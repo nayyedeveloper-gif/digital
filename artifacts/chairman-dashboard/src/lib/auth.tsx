@@ -21,8 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (username: string, password: string): boolean => {
     // Get credentials from environment variables
-    const validUsername = import.meta.env.VITE_AUTH_USERNAME;
-    const validPassword = import.meta.env.VITE_AUTH_PASSWORD;
+    const validUsername = import.meta.env.VITE_AUTH_USERNAME || "digital";
+    const validPassword = import.meta.env.VITE_AUTH_PASSWORD || "digital2026";
 
     console.log("Login attempt:", { username, password });
     console.log("Expected credentials:", { validUsername, validPassword });
