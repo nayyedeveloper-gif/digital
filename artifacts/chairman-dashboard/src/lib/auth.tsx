@@ -24,6 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const validUsername = import.meta.env.VITE_AUTH_USERNAME;
     const validPassword = import.meta.env.VITE_AUTH_PASSWORD;
 
+    console.log("Login attempt:", { username, password });
+    console.log("Expected credentials:", { validUsername, validPassword });
+    console.log("Comparison:", {
+      usernameMatch: username === validUsername,
+      passwordMatch: password === validPassword,
+    });
+
     if (username === validUsername && password === validPassword) {
       setIsAuthenticated(true);
       localStorage.setItem("isAuthenticated", "true");
