@@ -1,12 +1,14 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout";
 import { useEffect } from "react";
 import { setBaseUrl } from "@workspace/api-client-react";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 // Pages
+import Login from "@/pages/login";
 import Overview from "@/pages/overview";
 import Campaigns from "@/pages/campaigns";
 import Channels from "@/pages/channels";
@@ -22,24 +24,51 @@ import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [isAuthenticated, setLocation]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
 function Router() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Overview} />
-        <Route path="/campaigns" component={Campaigns} />
-        <Route path="/channels" component={Channels} />
-        {/* <Route path="/trends" component={Trends} /> */}
-        <Route path="/sheets" component={Sheets} />
-        <Route path="/reports/live-sales" component={ReportLiveSales} />
-        <Route path="/reports/paid-ads" component={ReportPaidAds} />
-        <Route path="/reports/organic" component={ReportOrganic} />
-        <Route path="/reports/daily-posts" component={ReportDailyPosts} />
-        <Route path="/reports/daily-ads" component={ReportDailyAds} />
-        <Route path="/compare" component={Compare} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      <Route path="/login" component={Login} />
+      <Route>
+        <ProtectedRoute>
+          <Layout>
+            <Switch>
+              <Route path="/" component={Overview} />
+              <Route path="/campaigns" component={Campaigns} />
+              <Route path="/channels" component={Channels} />
+              {/* <Route path="/trends" component={Trends} /> */}
+              <Route path="/sheets" component={Sheets} />
+              <Route path="/reports/live-sales" component={ReportLiveSales} />
+              <Route path="/reports/paid-ads" component={ReportPaidAds} />
+              <Route path="/reports/organic" component={ReportOrganic} />
+              <Route path="/reports/daily-posts" component={ReportDailyPosts} />
+              <Route path="/reports/daily-ads" component={ReportDailyAds} />
+              <Route path="/compare" component={Compare} />
+              <Route component={NotFound} />
+            </Switch>
+          </Layout>
+        </ProtectedRoute>
+      </Route>
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -54,12 +83,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

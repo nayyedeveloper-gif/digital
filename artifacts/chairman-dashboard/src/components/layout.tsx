@@ -13,8 +13,11 @@ import {
   CalendarDays,
   Zap,
   GitCompare,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 const OVERVIEW_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -35,6 +38,7 @@ const REPORT_ITEMS = [
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
+  const { logout } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full bg-background dark text-foreground">
@@ -97,6 +101,18 @@ export function Layout({ children }: { children: ReactNode }) {
               );
             })}
           </nav>
+        </div>
+
+        {/* Logout button */}
+        <div className="p-4 border-t border-border">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:text-foreground"
+            onClick={logout}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </aside>
 
