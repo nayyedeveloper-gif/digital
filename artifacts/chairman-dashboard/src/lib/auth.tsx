@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (username: string, password: string) => boolean;
   logout: () => void;
 }
@@ -10,6 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is already logged in from localStorage
@@ -17,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (auth === "true") {
       setIsAuthenticated(true);
     }
+    setIsLoading(false);
   }, []);
 
   const login = (username: string, password: string): boolean => {
@@ -24,14 +27,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const validUsername = import.meta.env.VITE_AUTH_USERNAME || "digital";
     const validPassword = import.meta.env.VITE_AUTH_PASSWORD || "digital2026";
 
-    console.log("Login attempt:", { username, password });
+    // Trim whitespace from inputs
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    console.log("Login attempt (raw):", { username, password });
+    console.log("Login attempt (trimmed):", { trimmedUsername, trimmedPassword });
     console.log("Expected credentials:", { validUsername, validPassword });
     console.log("Comparison:", {
-      usernameMatch: username === validUsername,
-      passwordMatch: password === validPassword,
+      usernameMatch: trimmedUsername === validUsername,
+      passwordMatch: trimmedPassword === validPassword,
     });
 
-    if (username === validUsername && password === validPassword) {
+    if (trimmedUsername === validUsername && trimmedPassword === validPassword) {
       setIsAuthenticated(true);
       localStorage.setItem("isAuthenticated", "true");
       return true;
@@ -46,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
